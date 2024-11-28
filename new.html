@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dizi Takip Sistemi</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #282c34;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      background: #3c4047;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      color: #f5a623;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .input-group input {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #555;
+      color: #fff;
+      font-size: 16px;
+    }
+    .input-group button {
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      background: #f5a623;
+      color: #282c34;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .input-group button:hover {
+      background: #e59421;
+    }
+    .dizi-listesi {
+      list-style: none;
+      padding: 0;
+    }
+    .dizi-listesi li {
+      background: #444;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+    }
+    .dizi-listesi button {
+      background: #ff4d4d;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    .dizi-listesi button:hover {
+      background: #cc0000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dizi Takip Sistemi</h1>
+    <div class="input-group">
+      <input type="text" id="diziAdi" placeholder="Dizi adı girin..." />
+      <input type="number" id="bolumSayisi" placeholder="Kaçıncı bölümde?" />
+      <button onclick="diziEkle()">Ekle</button>
+    </div>
+    <ul class="dizi-listesi" id="diziListesi"></ul>
+  </div>
+
+  <script>
+    // LocalStorage'dan dizileri al
+    const diziler = JSON.parse(localStorage.getItem("diziler")) || [];
+    const diziListesi = document.getElementById("diziListesi");
+
+    // Sayfa yüklendiğinde dizileri listele
+    window.onload = function () {
+      diziler.forEach(dizi => listeyeEkle(dizi.ad, dizi.bolum));
+    };
+
+    // Yeni bir dizi ekle
+    function diziEkle() {
+      const diziAdiInput = document.getElementById("diziAdi");
+      const bolumSayisiInput = document.getElementById("bolumSayisi");
+
+      const diziAdi = diziAdiInput.value.trim();
+      const bolumSayisi = bolumSayisiInput.value;
+
+      if (diziAdi === "" || bolumSayisi === "") {
+        alert("Lütfen dizi adı ve bölüm sayısını giriniz!");
+        return;
+      }
+
+      // Diziyi listeye ekle ve LocalStorage'a kaydet
+      diziler.push({ ad: diziAdi, bolum: bolumSayisi });
+      localStorage.setItem("diziler", JSON.stringify(diziler));
+
+      listeyeEkle(diziAdi, bolumSayisi);
+
+      diziAdiInput.value = "";
+      bolumSayisiInput.value = "";
+    }
+
+    // Listeye ekleme fonksiyonu
+    function listeyeEkle(diziAdi, bolumSayisi) {
+      const yeniDizi = document.createElement("li");
+      yeniDizi.innerHTML = `
+        <span>${diziAdi} - ${bolumSayisi}. Bölüm</span>
+        <button onclick="silDizi('${diziAdi}')">Sil</button>
+      `;
+      diziListesi.appendChild(yeniDizi);
+    }
+
+    // Dizi silme fonksiyonu
+    function silDizi(diziAdi) {
+      // Dizilerden kaldır ve LocalStorage'ı güncelle
+      const index = diziler.findIndex(dizi => dizi.ad === diziAdi);
+      if (index !== -1) {
+        diziler.splice(index, 1);
+        localStorage.setItem("diziler", JSON.stringify(diziler));
+        diziListesi.innerHTML = ""; // Listeyi sıfırla
+        diziler.forEach(dizi => listeyeEkle(dizi.ad, dizi.bolum)); // Kalanları yeniden ekle
+      }
+    }
+  </script>
+</body>
+</html>
